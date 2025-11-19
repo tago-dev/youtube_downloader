@@ -1,0 +1,11 @@
+[project]
+name = "youtube-downloader"
+version = "0.1.0"
+description = "A simple YouTube downloader web app"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flask==3.0.0",
+    "requests",
+    "streamsnapper @ git+https://github.com/henrique-coder/streamsnapper.git@main"
+]

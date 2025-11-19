@@ -255,13 +255,39 @@
             </button>
 
             <!-- Loading State -->
-            <div id="loadingState" class="hidden text-center py-4">
+            <div
+              id="loadingState"
+              class="hidden w-full py-4 flex flex-col items-center justify-center gap-2 text-blue-600"
+            >
               <div
-                class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10 mx-auto mb-3"
+                class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"
               ></div>
-              <p class="text-sm text-gray-500 animate-pulse">
-                Processando seu download...
-              </p>
+              <span class="text-sm font-medium">Processando...</span>
+            </div>
+
+            <!-- Progress Container -->
+            <div id="progressContainer" class="hidden mt-4 space-y-2">
+              <div
+                class="flex justify-between text-sm text-gray-600 dark:text-gray-400"
+              >
+                <span id="progressStatus">Iniciando...</span>
+                <span id="progressPercent">0%</span>
+              </div>
+              <div
+                class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden"
+              >
+                <div
+                  id="progressBar"
+                  class="bg-gradient-to-r from-blue-500 to-purple-600 h-2.5 rounded-full transition-all duration-300"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div
+                id="progressLog"
+                class="text-xs text-gray-500 font-mono h-20 overflow-y-auto bg-gray-50 dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700"
+              >
+                <!-- Logs go here -->
+              </div>
             </div>
 
             <!-- Error/Success Message -->
@@ -472,50 +498,82 @@
         const btn = document.getElementById("downloadBtn");
         const loading = document.getElementById("loadingState");
         const msg = document.getElementById("messageArea");
+        const progressContainer = document.getElementById("progressContainer");
+        const progressBar = document.getElementById("progressBar");
+        const progressStatus = document.getElementById("progressStatus");
+        const progressPercent = document.getElementById("progressPercent");
+        const progressLog = document.getElementById("progressLog");
 
         if (!url) {
           showMessage("Por favor, insira uma URL válida.", "error");
           return;
         }
 
+        // Generate unique ID
+        const downloadId =
+          Date.now().toString() + Math.random().toString(36).substr(2, 9);
+
         // UI Updates
         btn.classList.add("hidden");
-        loading.classList.remove("hidden");
+        // loading.classList.remove("hidden"); // We use progress bar instead
+        progressContainer.classList.remove("hidden");
         msg.classList.add("hidden");
 
+        // Reset progress
+        progressBar.style.width = "0%";
+        progressPercent.textContent = "0%";
+        progressStatus.textContent = "Iniciando...";
+        progressLog.innerHTML = "";
+
+        // Start SSE
+        const evtSource = new EventSource(`/progress/${downloadId}`);
+
+        evtSource.onmessage = function (event) {
+          const data = JSON.parse(event.data);
+
+          // Update UI
+          if (data.percent) {
+            progressBar.style.width = `${data.percent}%`;
+            progressPercent.textContent = `${Math.round(data.percent)}%`;
+          }
+
+          if (data.message) {
+            progressStatus.textContent =
+              data.status === "downloading" ? "Baixando..." : data.message;
+            const logEntry = document.createElement("div");
+            logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${
+              data.message
+            }`;
+            progressLog.appendChild(logEntry);
+            progressLog.scrollTop = progressLog.scrollHeight;
+          }
+
+          if (data.status === "completed" || data.status === "error") {
+            evtSource.close();
+          }
+        };
+
         try {
-          // Trigger download
-          // We use window.location for download to handle file stream properly
-          // But first we can verify if it's downloadable via a HEAD request or similar,
-          // but for simplicity in this demo, we'll submit a form or use fetch blob.
-          // Using fetch blob allows us to catch errors better but handling large files in memory is bad.
-          // Let's use a hidden form submission or window.location, but we want to catch errors.
-
-          // Better approach: Send request to download endpoint.
-          // If successful, the browser handles the file.
-          // If error, the server should return JSON error, but browser expects file.
-          // Workaround: Use fetch to check status, then window.location if ok?
-          // Or just use fetch and handle blob. For small videos it's fine. For large, streams are better.
-
-          // Let's try the fetch blob approach for better UX feedback
           const response = await fetch("/download", {
             method: "POST",
             headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
+              "Content-Type": "application/json",
             },
-            body: `url=${encodeURIComponent(url)}&format=${format}`,
+            body: JSON.stringify({
+              url: url,
+              format: format,
+              download_id: downloadId,
+            }),
           });
 
           if (!response.ok) {
             const text = await response.text();
-            throw new Error(text || "Erro no download");
-          }
-
-          // Check if content type is json (error)
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.indexOf("application/json") !== -1) {
-            const json = await response.json();
-            throw new Error(json.error || "Erro desconhecido");
+            let errorMsg = "Erro no download";
+            try {
+              const json = JSON.parse(text);
+              errorMsg = json.error || errorMsg;
+            } catch (e) {}
+            throw new Error(errorMsg);
           }
 
           // It's a file
@@ -550,9 +608,12 @@
           showMessage("Download concluído com sucesso!", "success");
         } catch (error) {
           showMessage("Erro ao baixar: " + error.message, "error");
+          evtSource.close();
         } finally {
           btn.classList.remove("hidden");
           loading.classList.add("hidden");
+          // Keep progress visible for a moment or hide it?
+          // Let's keep it visible so user sees logs
         }
       }
 
