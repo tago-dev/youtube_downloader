@@ -1,5 +1,5 @@
 import os
-from streamsnapper import YouTube
+from streamsnapper import YouTube, SupportedCookieBrowser
 import requests
 from flask import Flask, request, send_file, render_template, jsonify
 import re
@@ -42,10 +42,10 @@ def get_info():
 
         return jsonify({
             'title': yt.information.title,
-            'author': yt.information.channelName,
+            'author': yt.information.channel_name,
             'length': yt.information.duration,
             'thumbnail': thumbnail,
-            'views': yt.information.viewCount
+            'views': yt.information.view_count
         })
     except Exception as e:
         print(f"Error getting info: {e}")
@@ -73,15 +73,15 @@ def download():
         mime = 'video/mp4'
         
         if format_type == 'audio':
-            yt.analyze_audio_streams("all")
-            if yt.best_audio_stream:
-                download_url = yt.best_audio_stream.get('url')
+            yt.analyze_audio_streams(preferred_language=["pt-BR", "source", "all"])
+            if yt.best_audio_download_url:
+                download_url = yt.best_audio_download_url
                 ext = 'mp3'
                 mime = 'audio/mpeg'
         else:
-            yt.analyze_video_streams(preferred_quality="all")
-            if yt.best_video_stream:
-                download_url = yt.best_video_stream.get('url')
+            yt.analyze_video_streams(preferred_resolution="all")
+            if yt.best_video_download_url:
+                download_url = yt.best_video_download_url
                 ext = 'mp4'
                 mime = 'video/mp4'
             
