@@ -8,10 +8,16 @@ import time
 
 app = Flask(__name__)
 
-download_progress = {}
+# Configuração do diretório de downloads
+if os.environ.get('VERCEL'):
+    import tempfile
+    DOWNLOAD_DIR = tempfile.gettempdir()
+else:
+    DOWNLOAD_DIR = 'downloads'
+    if not os.path.exists(DOWNLOAD_DIR):
+        os.makedirs(DOWNLOAD_DIR)
 
-if not os.path.exists('downloads'):
-    os.makedirs('downloads')
+download_progress = {}
 
 def download_file_from_url(url, filepath, download_id=None):
     try:
@@ -186,7 +192,7 @@ def download():
             safe_title = "video_download"
             
         filename = f"{safe_title}.{ext}"
-        filepath = os.path.join('downloads', filename)
+        filepath = os.path.join(DOWNLOAD_DIR, filename)
         
         download_file_from_url(download_url, filepath, download_id)
 
