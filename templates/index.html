@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YouTube Downloader Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-image: url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+      }
+      .glass {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+      .dark .glass {
+        background: rgba(17, 24, 39, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .loader {
+        border-top-color: #3b82f6;
+        -webkit-animation: spinner 1.5s linear infinite;
+        animation: spinner 1.5s linear infinite;
+      }
+      @keyframes spinner {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3B82F6",
+              secondary: "#8B5CF6",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body
+    class="min-h-screen flex items-center justify-center p-4 transition-colors duration-300"
+  >
+    <!-- Theme Toggle -->
+    <button
+      id="themeToggle"
+      class="fixed top-4 right-4 p-3 rounded-full glass shadow-lg hover:scale-110 transition-transform duration-200 z-50"
+    >
+      <i class="fas fa-moon text-gray-800 dark:text-white text-xl"></i>
+    </button>
+
+    <div class="container max-w-4xl w-full">
+      <div
+        class="glass rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row fade-in"
+      >
+        <!-- Left Side: Info & Branding -->
+        <div
+          class="md:w-2/5 bg-gradient-to-br from-blue-600 to-purple-700 p-8 text-white flex flex-col justify-between relative overflow-hidden"
+        >
+          <div class="absolute top-0 left-0 w-full h-full opacity-20">
+            <i
+              class="fab fa-youtube absolute -bottom-10 -right-10 text-9xl transform rotate-12"
+            ></i>
+          </div>
+
+          <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-6">
+              <div
+                class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm"
+              >
+                <i class="fas fa-cloud-download-alt text-2xl"></i>
+              </div>
+              <h1 class="text-2xl font-bold tracking-tight">YT Downloader</h1>
+            </div>
+            <p class="text-blue-100 mb-8">
+              Baixe seus vídeos favoritos em alta qualidade com apenas um
+              clique. Simples, rápido e gratuito.
+            </p>
+          </div>
+
+          <div class="relative z-10 space-y-4">
+            <div class="flex items-center gap-3 text-sm text-blue-100">
+              <i class="fas fa-check-circle text-green-400"></i>
+              <span>Suporte a 4K e HD</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-blue-100">
+              <i class="fas fa-music text-pink-400"></i>
+              <span>Conversão para MP3</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-blue-100">
+              <i class="fas fa-bolt text-yellow-400"></i>
+              <span>Downloads Ilimitados</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Form & Interaction -->
+        <div
+          class="md:w-3/5 p-8 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md"
+        >
+          <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+              Comece a Baixar
+            </h2>
+            <p class="text-gray-500 dark:text-gray-400 text-sm">
+              Cole o link do vídeo abaixo
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            <!-- Input Area -->
+            <div class="relative group">
+              <div
+                class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
+              >
+                <i
+                  class="fas fa-link text-gray-400 group-focus-within:text-blue-500 transition-colors"
+                ></i>
+              </div>
+              <input
+                type="text"
+                id="videoUrl"
+                class="w-full pl-11 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-800 dark:text-white placeholder-gray-400"
+                placeholder="https://www.youtube.com/watch?v=..."
+                oninput="checkUrl()"
+              />
+              <button
+                onclick="pasteUrl()"
+                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-500 transition-colors"
+                title="Colar"
+              >
+                <i class="fas fa-paste"></i>
+              </button>
+            </div>
+
+            <!-- Video Preview Card (Hidden by default) -->
+            <div
+              id="videoPreview"
+              class="hidden fade-in bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700"
+            >
+              <div class="flex gap-4">
+                <img
+                  id="thumbnail"
+                  src=""
+                  alt="Thumbnail"
+                  class="w-24 h-24 object-cover rounded-lg shadow-sm"
+                />
+                <div class="flex-1 min-w-0">
+                  <h3
+                    id="videoTitle"
+                    class="text-sm font-semibold text-gray-800 dark:text-white line-clamp-2 mb-1"
+                  ></h3>
+                  <p
+                    id="videoAuthor"
+                    class="text-xs text-gray-500 dark:text-gray-400 mb-2"
+                  ></p>
+                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                    <span
+                      id="videoDuration"
+                      class="bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded"
+                    ></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Options -->
+            <div class="grid grid-cols-2 gap-4">
+              <label class="cursor-pointer relative">
+                <input
+                  type="radio"
+                  name="format"
+                  value="video"
+                  checked
+                  class="peer sr-only"
+                />
+                <div
+                  class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-blue-500 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 transition-all text-center hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <i
+                    class="fas fa-video text-2xl mb-2 text-gray-400 peer-checked:text-blue-500"
+                  ></i>
+                  <div
+                    class="text-sm font-medium text-gray-600 dark:text-gray-300 peer-checked:text-blue-600 dark:peer-checked:text-blue-400"
+                  >
+                    Vídeo MP4
+                  </div>
+                </div>
+              </label>
+              <label class="cursor-pointer relative">
+                <input
+                  type="radio"
+                  name="format"
+                  value="audio"
+                  class="peer sr-only"
+                />
+                <div
+                  class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-purple-500 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/20 transition-all text-center hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <i
+                    class="fas fa-music text-2xl mb-2 text-gray-400 peer-checked:text-purple-500"
+                  ></i>
+                  <div
+                    class="text-sm font-medium text-gray-600 dark:text-gray-300 peer-checked:text-purple-600 dark:peer-checked:text-purple-400"
+                  >
+                    Áudio MP3
+                  </div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Download Button -->
+            <button
+              onclick="startDownload()"
+              id="downloadBtn"
+              class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              <span>Baixar Agora</span>
+              <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden text-center py-4">
+              <div
+                class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-10 w-10 mx-auto mb-3"
+              ></div>
+              <p class="text-sm text-gray-500 animate-pulse">
+                Processando seu download...
+              </p>
+            </div>
+
+            <!-- Error/Success Message -->
+            <div
+              id="messageArea"
+              class="hidden p-4 rounded-xl text-sm font-medium text-center"
+            ></div>
+          </div>
+
+          <!-- Download History -->
+          <div id="historySection" class="mt-8 hidden fade-in">
+            <div class="flex items-center justify-between mb-4">
+              <h3
+                class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+              >
+                Downloads Recentes
+              </h3>
+              <button
+                onclick="clearHistory()"
+                class="text-xs text-red-500 hover:text-red-600"
+              >
+                Limpar
+              </button>
+            </div>
+            <div id="historyList" class="space-y-3">
+              <!-- History items will be injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center mt-8 text-white/60 text-sm">
+        <p>
+          &copy; 2025 YouTube Downloader Pro. Feito com
+          <i class="fas fa-heart text-red-400 mx-1"></i> por Tiago.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Theme Toggle Logic
+      const themeToggle = document.getElementById("themeToggle");
+      const html = document.documentElement;
+      const icon = themeToggle.querySelector("i");
+
+      // Load theme from local storage
+      if (
+        localStorage.getItem("theme") === "dark" ||
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      ) {
+        html.classList.add("dark");
+        icon.classList.remove("fa-moon");
+        icon.classList.add("fa-sun");
+        icon.classList.replace("text-gray-800", "text-yellow-400");
+      } else {
+        html.classList.remove("dark");
+      }
+
+      themeToggle.addEventListener("click", () => {
+        html.classList.toggle("dark");
+        if (html.classList.contains("dark")) {
+          localStorage.setItem("theme", "dark");
+          icon.classList.remove("fa-moon");
+          icon.classList.add("fa-sun");
+          icon.classList.replace("text-gray-800", "text-yellow-400");
+        } else {
+          localStorage.setItem("theme", "light");
+          icon.classList.remove("fa-sun");
+          icon.classList.add("fa-moon");
+          icon.classList.replace("text-yellow-400", "text-gray-800");
+        }
+      });
+
+      // History Logic
+      function loadHistory() {
+        const history = JSON.parse(
+          localStorage.getItem("downloadHistory") || "[]"
+        );
+        const list = document.getElementById("historyList");
+        const section = document.getElementById("historySection");
+
+        if (history.length === 0) {
+          section.classList.add("hidden");
+          return;
+        }
+
+        section.classList.remove("hidden");
+        list.innerHTML = history
+          .map(
+            (item) => `
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+                    <img src="${
+                      item.thumbnail
+                    }" class="w-12 h-12 rounded object-cover">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="text-xs font-medium text-gray-800 dark:text-white truncate">${
+                          item.title
+                        }</h4>
+                        <p class="text-[10px] text-gray-500">${item.date} • ${
+              item.format === "audio" ? "MP3" : "MP4"
+            }</p>
+                    </div>
+                    <a href="${
+                      item.url
+                    }" target="_blank" class="text-blue-500 hover:text-blue-600 p-2">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      function addToHistory(title, thumbnail, url, format) {
+        const history = JSON.parse(
+          localStorage.getItem("downloadHistory") || "[]"
+        );
+        const newItem = {
+          title,
+          thumbnail,
+          url,
+          format,
+          date: new Date().toLocaleDateString(),
+        };
+
+        // Add to beginning and limit to 5 items
+        history.unshift(newItem);
+        if (history.length > 5) history.pop();
+
+        localStorage.setItem("downloadHistory", JSON.stringify(history));
+        loadHistory();
+      }
+
+      function clearHistory() {
+        localStorage.removeItem("downloadHistory");
+        loadHistory();
+      }
+
+      // Load history on start
+      loadHistory();
+
+      // Paste URL
+      async function pasteUrl() {
+        try {
+          const text = await navigator.clipboard.readText();
+          document.getElementById("videoUrl").value = text;
+          checkUrl();
+        } catch (err) {
+          console.error("Failed to read clipboard contents: ", err);
+        }
+      }
+
+      // Debounce function for URL checking
+      let timeout = null;
+      function checkUrl() {
+        const url = document.getElementById("videoUrl").value;
+        const preview = document.getElementById("videoPreview");
+
+        if (timeout) clearTimeout(timeout);
+
+        if (!url) {
+          preview.classList.add("hidden");
+          return;
+        }
+
+        timeout = setTimeout(() => {
+          fetchVideoInfo(url);
+        }, 500);
+      }
+
+      async function fetchVideoInfo(url) {
+        try {
+          const response = await axios.post("/get_info", { url: url });
+          const data = response.data;
+
+          if (data.error) return;
+
+          document.getElementById("thumbnail").src = data.thumbnail;
+          document.getElementById("videoTitle").textContent = data.title;
+          document.getElementById("videoAuthor").textContent = data.author;
+          document.getElementById("videoDuration").textContent = formatDuration(
+            data.length
+          );
+
+          document.getElementById("videoPreview").classList.remove("hidden");
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function formatDuration(seconds) {
+        const date = new Date(seconds * 1000);
+        const hh = date.getUTCHours();
+        const mm = date.getUTCMinutes();
+        const ss = date.getUTCSeconds().toString().padStart(2, "0");
+        if (hh) {
+          return `${hh}:${mm.toString().padStart(2, "0")}:${ss}`;
+        }
+        return `${mm}:${ss}`;
+      }
+
+      async function startDownload() {
+        const url = document.getElementById("videoUrl").value;
+        const format = document.querySelector(
+          'input[name="format"]:checked'
+        ).value;
+        const btn = document.getElementById("downloadBtn");
+        const loading = document.getElementById("loadingState");
+        const msg = document.getElementById("messageArea");
+
+        if (!url) {
+          showMessage("Por favor, insira uma URL válida.", "error");
+          return;
+        }
+
+        // UI Updates
+        btn.classList.add("hidden");
+        loading.classList.remove("hidden");
+        msg.classList.add("hidden");
+
+        try {
+          // Trigger download
+          // We use window.location for download to handle file stream properly
+          // But first we can verify if it's downloadable via a HEAD request or similar,
+          // but for simplicity in this demo, we'll submit a form or use fetch blob.
+          // Using fetch blob allows us to catch errors better but handling large files in memory is bad.
+          // Let's use a hidden form submission or window.location, but we want to catch errors.
+
+          // Better approach: Send request to download endpoint.
+          // If successful, the browser handles the file.
+          // If error, the server should return JSON error, but browser expects file.
+          // Workaround: Use fetch to check status, then window.location if ok?
+          // Or just use fetch and handle blob. For small videos it's fine. For large, streams are better.
+
+          // Let's try the fetch blob approach for better UX feedback
+          const response = await fetch("/download", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `url=${encodeURIComponent(url)}&format=${format}`,
+          });
+
+          if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "Erro no download");
+          }
+
+          // Check if content type is json (error)
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") !== -1) {
+            const json = await response.json();
+            throw new Error(json.error || "Erro desconhecido");
+          }
+
+          // It's a file
+          const blob = await response.blob();
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = downloadUrl;
+
+          // Try to get filename from header
+          const disposition = response.headers.get("Content-Disposition");
+          let filename = "video.mp4";
+          if (disposition && disposition.indexOf("attachment") !== -1) {
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) {
+              filename = matches[1].replace(/['"]/g, "");
+            }
+          }
+
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(downloadUrl);
+          a.remove();
+
+          // Add to history
+          const title =
+            document.getElementById("videoTitle").textContent || url;
+          const thumbnail = document.getElementById("thumbnail").src || "";
+          addToHistory(title, thumbnail, url, format);
+
+          showMessage("Download concluído com sucesso!", "success");
+        } catch (error) {
+          showMessage("Erro ao baixar: " + error.message, "error");
+        } finally {
+          btn.classList.remove("hidden");
+          loading.classList.add("hidden");
+        }
+      }
+
+      function showMessage(text, type) {
+        const msg = document.getElementById("messageArea");
+        msg.textContent = text;
+        msg.classList.remove(
+          "hidden",
+          "bg-red-100",
+          "text-red-700",
+          "bg-green-100",
+          "text-green-700"
+        );
+
+        if (type === "error") {
+          msg.classList.add("bg-red-100", "text-red-700");
+        } else {
+          msg.classList.add("bg-green-100", "text-green-700");
+        }
+      }
+    </script>
+  </body>
+</html>
