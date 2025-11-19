@@ -1,5 +1,6 @@
 import os
-from pytubefix import YouTube
+from streamsnapper import YouTube
+import requests
 from flask import Flask, request, send_file, render_template, jsonify
 import re
 
@@ -7,6 +8,14 @@ app = Flask(__name__)
 
 if not os.path.exists('downloads'):
     os.makedirs('downloads')
+
+def download_file_from_url(url, filepath):
+    with requests.get(url, stream=True) as r:
+        r.raise_for_status()
+        with open(filepath, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=8192):
+                f.write(chunk)
+    return filepath
 
 @app.route('/')
 def index():
@@ -23,22 +32,28 @@ def get_info():
         if not url:
             return jsonify({'error': 'URL não fornecida'}), 400
         
-        yt = YouTube(url, use_oauth=False, allow_oauth_cache=False)
+        yt = YouTube(logging=False)
+        yt.extract(url)
+        yt.analyze_information()
         
+        thumbnail = ""
+        if yt.information.thumbnails:
+            thumbnail = yt.information.thumbnails[0]
+
         return jsonify({
-            'title': yt.title,
-            'author': yt.author,
-            'length': yt.length,
-            'thumbnail': yt.thumbnail_url,
-            'views': yt.views
+            'title': yt.information.title,
+            'author': yt.information.channelName,
+            'length': yt.information.duration,
+            'thumbnail': thumbnail,
+            'views': yt.information.viewCount
         })
     except Exception as e:
+        print(f"Error getting info: {e}")
         return jsonify({'error': str(e)}), 400
 
 @app.route('/download', methods=['POST'])
 def download():
     try:
-        # Handle both JSON and Form data
         if request.is_json:
             data = request.get_json()
             url = data.get('url')
@@ -50,42 +65,39 @@ def download():
         if not url:
             return jsonify({'error': 'URL não fornecida'}), 400
             
-        yt = YouTube(url, use_oauth=False, allow_oauth_cache=False)
+        yt = YouTube(logging=False)
+        yt.extract(url)
+        
+        download_url = None
+        ext = 'mp4'
+        mime = 'video/mp4'
         
         if format_type == 'audio':
-            stream = yt.streams.filter(only_audio=True).first()
-            ext = 'mp3'
-            mime = 'audio/mpeg'
+            yt.analyze_audio_streams("all")
+            if yt.best_audio_stream:
+                download_url = yt.best_audio_stream.get('url')
+                ext = 'mp3'
+                mime = 'audio/mpeg'
         else:
-            stream = yt.streams.get_highest_resolution()
-            ext = 'mp4'
-            mime = 'video/mp4'
+            yt.analyze_video_streams(preferred_quality="all")
+            if yt.best_video_stream:
+                download_url = yt.best_video_stream.get('url')
+                ext = 'mp4'
+                mime = 'video/mp4'
             
-        if not stream:
+        if not download_url:
             return jsonify({'error': 'Stream não encontrado'}), 404
             
-        # Download to temp file
-        out_file = stream.download(output_path='downloads')
+        safe_title = "".join([c for c in yt.information.title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+        filename = f"{safe_title}.{ext}"
+        filepath = os.path.join('downloads', filename)
         
-        # If audio, we might want to rename to mp3 (pytube downloads as mp4 usually for audio streams)
-        # But for simplicity, we serve as is, browsers handle it. 
-        # Ideally we would use ffmpeg to convert.
-        # Let's just serve the file.
-        
-        filename = os.path.basename(out_file)
-        new_filename = filename
-        
-        if format_type == 'audio':
-            base, _ = os.path.splitext(out_file)
-            new_file = base + '.mp3'
-            os.rename(out_file, new_file)
-            out_file = new_file
-            new_filename = os.path.basename(new_file)
+        download_file_from_url(download_url, filepath)
 
         return send_file(
-            out_file,
+            filepath,
             as_attachment=True,
-            download_name=new_filename,
+            download_name=filename,
             mimetype=mime
         )
 
