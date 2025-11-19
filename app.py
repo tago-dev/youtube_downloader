@@ -8,7 +8,6 @@ import time
 
 app = Flask(__name__)
 
-# Store download progress
 download_progress = {}
 
 if not os.path.exists('downloads'):
@@ -95,7 +94,6 @@ def progress(download_id):
                 if data['status'] in ['completed', 'error']:
                     break
             else:
-                # Keep connection alive waiting for start
                 yield f"data: {json.dumps({'status': 'waiting', 'percent': 0, 'message': 'Aguardando início...'})}\n\n"
             time.sleep(0.5)
     return Response(generate(), mimetype='text/event-stream')
@@ -136,18 +134,46 @@ def download():
             if download_id:
                 download_progress[download_id]['message'] = 'Analisando streams de áudio...'
             yt.analyze_audio_streams(preferred_language=["pt-BR", "source", "all"])
-            if yt.best_audio_download_url:
-                download_url = yt.best_audio_download_url
-                ext = 'mp3'
-                mime = 'audio/mpeg'
+            if yt.best_audio_stream:
+                download_url = yt.best_audio_stream.get('url')
+                ext = yt.best_audio_stream.get('extension', 'mp3')
+                if ext == 'webm':
+                    mime = 'audio/webm'
+                elif ext == 'm4a':
+                    mime = 'audio/mp4'
+                else:
+                    mime = 'audio/mpeg'
         else:
             if download_id:
                 download_progress[download_id]['message'] = 'Analisando streams de vídeo...'
-            yt.analyze_video_streams(preferred_resolution="all")
-            if yt.best_video_download_url:
-                download_url = yt.best_video_download_url
-                ext = 'mp4'
+            
+            progressive_url = None
+            best_progressive_quality = 0
+            
+            for stream in yt._raw_youtube_streams:
+                vcodec = stream.get('vcodec')
+                acodec = stream.get('acodec')
+                url = stream.get('url', '')
+                
+                if 'manifest.googlevideo.com' in url or '.m3u8' in url:
+                    continue
+                
+                if vcodec != 'none' and acodec != 'none':
+                    height = stream.get('height', 0) or 0
+                    if height > best_progressive_quality:
+                        best_progressive_quality = height
+                        progressive_url = url
+                        ext = 'mp4' 
+            
+            if progressive_url:
+                download_url = progressive_url
                 mime = 'video/mp4'
+            else:
+                yt.analyze_video_streams(preferred_resolution="all")
+                if yt.best_video_download_url:
+                    download_url = yt.best_video_download_url
+                    ext = yt.best_video_stream.get('extension', 'mp4')
+                    mime = 'video/mp4'
             
         if not download_url:
             if download_id:
