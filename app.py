@@ -5,6 +5,7 @@ from flask import Flask, request, send_file, render_template, jsonify, Response
 import re
 import json
 import time
+import yt_dlp
 
 app = Flask(__name__)
 
@@ -56,6 +57,24 @@ def download_file_from_url(url, filepath, download_id=None):
         raise e
     return filepath
 
+def is_instagram_url(url):
+    return 'instagram.com' in url
+
+def get_instagram_info_data(url):
+    ydl_opts = {
+        'quiet': True,
+        'no_warnings': True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return {
+            'title': info.get('description', 'Instagram Video')[:50] if info.get('description') else 'Instagram Video',
+            'author': info.get('uploader', 'Instagram User'),
+            'length': info.get('duration', 0),
+            'thumbnail': info.get('thumbnail', ''),
+            'views': info.get('view_count', 0)
+        }
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -71,6 +90,10 @@ def get_info():
         if not url:
             return jsonify({'error': 'URL não fornecida'}), 400
         
+        if is_instagram_url(url):
+            info = get_instagram_info_data(url)
+            return jsonify(info)
+
         yt = YouTube(logging=False)
         yt.extract(url)
         yt.analyze_information()
@@ -128,65 +151,81 @@ def download():
         if not url:
             return jsonify({'error': 'URL não fornecida'}), 400
             
-        yt = YouTube(logging=False)
-        yt.extract(url)
-        yt.analyze_information()
-        
         download_url = None
         ext = 'mp4'
         mime = 'video/mp4'
-        
-        if format_type == 'audio':
+        video_title = "video_download"
+
+        if is_instagram_url(url):
             if download_id:
-                download_progress[download_id]['message'] = 'Analisando streams de áudio...'
-            yt.analyze_audio_streams(preferred_language=["pt-BR", "source", "all"])
-            if yt.best_audio_stream:
-                download_url = yt.best_audio_stream.get('url')
-                ext = yt.best_audio_stream.get('extension', 'mp3')
-                if ext == 'webm':
-                    mime = 'audio/webm'
-                elif ext == 'm4a':
-                    mime = 'audio/mp4'
-                else:
-                    mime = 'audio/mpeg'
+                download_progress[download_id]['message'] = 'Processando Instagram...'
+            
+            ydl_opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'format': 'best',
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                download_url = info.get('url')
+                ext = info.get('ext', 'mp4')
+                video_title = info.get('description', 'instagram_video')[:50] if info.get('description') else 'instagram_video'
         else:
-            if download_id:
-                download_progress[download_id]['message'] = 'Analisando streams de vídeo...'
+            yt = YouTube(logging=False)
+            yt.extract(url)
+            yt.analyze_information()
+            video_title = yt.information.title or "video_download"
             
-            progressive_url = None
-            best_progressive_quality = 0
-            
-            for stream in yt._raw_youtube_streams:
-                vcodec = stream.get('vcodec')
-                acodec = stream.get('acodec')
-                url = stream.get('url', '')
-                
-                if 'manifest.googlevideo.com' in url or '.m3u8' in url:
-                    continue
-                
-                if vcodec != 'none' and acodec != 'none':
-                    height = stream.get('height', 0) or 0
-                    if height > best_progressive_quality:
-                        best_progressive_quality = height
-                        progressive_url = url
-                        ext = 'mp4' 
-            
-            if progressive_url:
-                download_url = progressive_url
-                mime = 'video/mp4'
+            if format_type == 'audio':
+                if download_id:
+                    download_progress[download_id]['message'] = 'Analisando streams de áudio...'
+                yt.analyze_audio_streams(preferred_language=["pt-BR", "source", "all"])
+                if yt.best_audio_stream:
+                    download_url = yt.best_audio_stream.get('url')
+                    ext = yt.best_audio_stream.get('extension', 'mp3')
+                    if ext == 'webm':
+                        mime = 'audio/webm'
+                    elif ext == 'm4a':
+                        mime = 'audio/mp4'
+                    else:
+                        mime = 'audio/mpeg'
             else:
-                yt.analyze_video_streams(preferred_resolution="all")
-                if yt.best_video_download_url:
-                    download_url = yt.best_video_download_url
-                    ext = yt.best_video_stream.get('extension', 'mp4')
+                if download_id:
+                    download_progress[download_id]['message'] = 'Analisando streams de vídeo...'
+                
+                progressive_url = None
+                best_progressive_quality = 0
+                
+                for stream in yt._raw_youtube_streams:
+                    vcodec = stream.get('vcodec')
+                    acodec = stream.get('acodec')
+                    url_stream = stream.get('url', '')
+                    
+                    if 'manifest.googlevideo.com' in url_stream or '.m3u8' in url_stream:
+                        continue
+                    
+                    if vcodec != 'none' and acodec != 'none':
+                        height = stream.get('height', 0) or 0
+                        if height > best_progressive_quality:
+                            best_progressive_quality = height
+                            progressive_url = url_stream
+                            ext = 'mp4' 
+                
+                if progressive_url:
+                    download_url = progressive_url
                     mime = 'video/mp4'
+                else:
+                    yt.analyze_video_streams(preferred_resolution="all")
+                    if yt.best_video_download_url:
+                        download_url = yt.best_video_download_url
+                        ext = yt.best_video_stream.get('extension', 'mp4')
+                        mime = 'video/mp4'
             
         if not download_url:
             if download_id:
                 download_progress[download_id] = {'status': 'error', 'message': 'Stream não encontrado'}
             return jsonify({'error': 'Stream não encontrado'}), 404
             
-        video_title = yt.information.title or "video_download"
         safe_title = "".join([c for c in video_title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
         if not safe_title:
             safe_title = "video_download"

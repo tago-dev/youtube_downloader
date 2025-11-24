@@ -2,3 +2,5 @@ Flask==3.0.0
 streamsnapper
 requests
 yt-dlp>=2024.0.0
+pywebview
+pyinstaller
