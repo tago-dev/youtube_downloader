@@ -261,4 +261,7 @@ def download():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    # Porta 54321 para compatibilidade com Electron
+    port = int(os.environ.get('PORT', 54321))
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    app.run(debug=debug, host='127.0.0.1', port=port)
