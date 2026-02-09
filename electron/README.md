@@ -1,109 +1,73 @@
-# Video Downloader Pro - Electron App
+# Video Downloader Pro - Desktop App (Electron)
 
-Este guia explica como executar e compilar o aplicativo desktop.
+Aplicativo desktop para baixar vídeos do **YouTube**, **Instagram** e **Twitter/X**.
 
 ## Pré-requisitos
 
-1. **Node.js** (v18 ou superior): [Download](https://nodejs.org/)
-2. **Python 3** com as dependências instaladas:
+1. **Node.js** (v18+): [Download](https://nodejs.org/)
+2. **Python 3** com dependências instaladas:
    ```bash
    pip install -r requirements.txt
    ```
 
-## Estrutura do Projeto
+## Estrutura
 
 ```
-youtube_downloader/
-├── app.py                 # Backend Flask
-├── templates/             # Templates HTML
-├── requirements.txt       # Dependências Python
-├── electron/              # Aplicativo Electron
-│   ├── main.js           # Processo principal
-│   ├── preload.js        # Script de preload
-│   ├── package.json      # Configuração Electron
-│   └── icons/            # Ícones do app
-└── downloads/            # Pasta de downloads
+electron/
+├── main.js          # Processo principal (splash, tray, backend)
+├── preload.js       # APIs seguras expostas ao frontend
+├── package.json     # Configuração e build
+└── icons/           # Ícones do app (icon.png, icon.ico)
 ```
 
-## Como Executar em Desenvolvimento
+## Funcionalidades do Desktop
 
-### 1. Instalar dependências do Electron
+- 🚀 **Splash Screen** animada enquanto o backend carrega
+- 🔔 **Notificações nativas** quando o download termina
+- 📂 **Abrir pasta de downloads** direto do app
+- 🖥️ **System Tray** com menu de contexto
+- 🔒 **Instância única** - não abre o app duplicado
+- 🍎 **macOS**: Barra de título integrada, minimiza pra tray
+- 📋 **Menu nativo** traduzido (Editar, Visualizar, Janela)
+- ⚡ **Healthcheck** - monitora se o backend está vivo
+
+## Desenvolvimento
 
 ```bash
+# Instalar dependências
 cd electron
 npm install
-```
 
-### 2. Executar o aplicativo
-
-```bash
+# Executar em modo dev (com DevTools)
 npm start
+
+# Ou com variável de ambiente
+npm run dev
 ```
 
-Isso irá:
-
-1. Iniciar automaticamente o servidor Flask (Python)
-2. Abrir a janela do aplicativo
-
-## Como Compilar para Distribuição
-
-### Para macOS:
+## Build para Distribuição
 
 ```bash
-cd electron
+# macOS
 npm run build:mac
-```
 
-O instalador `.dmg` será gerado em `electron/dist/`.
-
-### Para Windows:
-
-```bash
-cd electron
+# Windows
 npm run build:win
-```
 
-O instalador `.exe` será gerado em `electron/dist/`.
-
-### Para Linux:
-
-```bash
-cd electron
+# Linux
 npm run build:linux
 ```
 
-O `.AppImage` será gerado em `electron/dist/`.
+Os binários serão gerados em `electron/dist/`.
 
-## Criando Ícones
+## Ícones
 
-Para um app profissional, você precisa criar ícones:
+Coloque seus ícones na pasta `electron/icons/`:
+- `icon.png` — 512x512 (macOS, Linux)
+- `icon.ico` — 256x256 (Windows)
 
-- **macOS**: `icons/icon.icns` (arquivo .icns)
-- **Windows**: `icons/icon.ico` (256x256)
-- **Linux**: `icons/icon.png` (512x512)
+## Troubleshooting
 
-Você pode usar ferramentas como [IconKitchen](https://icon.kitchen/) ou [Electron Icon Maker](https://www.npmjs.com/package/electron-icon-maker).
-
-## Notas Importantes
-
-1. **Python no PATH**: O usuário final precisa ter Python 3 instalado e acessível no PATH do sistema.
-
-2. **Distribuição com Python embutido**: Para distribuir sem exigir Python instalado, você precisaria usar ferramentas como PyInstaller para empacotar o backend separadamente.
-
-3. **Primeira execução**: Na primeira execução, pode demorar alguns segundos para o servidor Flask iniciar.
-
-## Solução de Problemas
-
-### "Erro ao iniciar o servidor"
-
-- Verifique se o Python 3 está instalado: `python3 --version`
-- Verifique se as dependências estão instaladas: `pip install -r requirements.txt`
-
-### Porta já em uso
-
-- A aplicação usa a porta 54321. Certifique-se de que não há outro processo usando essa porta.
-
-### Tela branca
-
-- Aguarde alguns segundos, o servidor Flask pode estar iniciando.
-- Verifique o console do DevTools (View > Toggle Developer Tools) para erros.
+- **"Não foi possível iniciar o backend"**: Verifique se `python3` está no PATH
+- **Tela branca**: O backend Flask pode demorar pra iniciar. Aguarde a splash sumir.
+- **Porta 54321 em uso**: Encerre outros processos usando `lsof -i :54321`

@@ -49,9 +49,6 @@ Thumbs.db
 # Logs
 *.log
 
-# Vercel
-.vercel
-
 # Electron / Node.js
 electron/node_modules/
 electron/dist/

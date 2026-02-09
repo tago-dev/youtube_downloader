@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Video Downloader Pro (YT & Insta)</title>
+    <title>Video Downloader Pro (YT, Insta & X)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -58,6 +58,16 @@
           transform: translateY(0);
         }
       }
+      /* Electron: padding para barra de título no macOS */
+      .electron-drag {
+        -webkit-app-region: drag;
+      }
+      .electron-no-drag {
+        -webkit-app-region: no-drag;
+      }
+      .electron-titlebar-pad {
+        padding-top: 0;
+      }
     </style>
     <script>
       tailwind.config = {
@@ -99,6 +109,9 @@
             <i
               class="fab fa-instagram absolute top-10 -left-10 text-8xl transform -rotate-12 opacity-50"
             ></i>
+            <i
+              class="fab fa-x-twitter absolute bottom-20 left-10 text-7xl transform rotate-6 opacity-40"
+            ></i>
           </div>
 
           <div class="relative z-10">
@@ -113,8 +126,8 @@
               </h1>
             </div>
             <p class="text-blue-100 mb-8">
-              Baixe vídeos do YouTube e Instagram em alta qualidade com apenas
-              um clique. Simples, rápido e gratuito.
+              Baixe vídeos do YouTube, Instagram e Twitter/X em alta qualidade
+              com apenas um clique. Simples, rápido e gratuito.
             </p>
           </div>
 
@@ -122,6 +135,10 @@
             <div class="flex items-center gap-3 text-sm text-blue-100">
               <i class="fas fa-check-circle text-green-400"></i>
               <span>Suporte a 4K e HD</span>
+            </div>
+            <div class="flex items-center gap-3 text-sm text-blue-100">
+              <i class="fab fa-x-twitter text-white"></i>
+              <span>Suporte ao Twitter/X</span>
             </div>
             <div class="flex items-center gap-3 text-sm text-blue-100">
               <i class="fas fa-music text-pink-400"></i>
@@ -161,7 +178,7 @@
                 type="text"
                 id="videoUrl"
                 class="w-full pl-11 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-800 dark:text-white placeholder-gray-400"
-                placeholder="Cole o link do YouTube ou Instagram..."
+                placeholder="Cole o link do YouTube, Instagram ou Twitter/X..."
                 oninput="checkUrl()"
               />
               <button
@@ -324,9 +341,19 @@
         </div>
       </div>
 
-      <div class="text-center mt-8 text-white/60 text-sm">
+      <div class="text-center mt-8 text-white/60 text-sm space-y-3">
+        <!-- Botão abrir pasta de downloads (aparece no Electron) -->
+        <div id="electronControls" class="hidden">
+          <button
+            onclick="openDownloadsFolder()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white text-sm backdrop-blur-sm"
+          >
+            <i class="fas fa-folder-open"></i>
+            <span>Abrir Pasta de Downloads</span>
+          </button>
+        </div>
         <p>
-          &copy; 2025 YouTube Downloader Pro. Feito com
+          &copy; 2025 Video Downloader Pro. Feito com
           <i class="fas fa-heart text-red-400 mx-1"></i> por Tiago.
         </p>
       </div>
@@ -370,7 +397,7 @@
       // History Logic
       function loadHistory() {
         const history = JSON.parse(
-          localStorage.getItem("downloadHistory") || "[]"
+          localStorage.getItem("downloadHistory") || "[]",
         );
         const list = document.getElementById("historyList");
         const section = document.getElementById("historySection");
@@ -393,8 +420,8 @@
                           item.title
                         }</h4>
                         <p class="text-[10px] text-gray-500">${item.date} • ${
-              item.format === "audio" ? "MP3" : "MP4"
-            }</p>
+                          item.format === "audio" ? "MP3" : "MP4"
+                        }</p>
                     </div>
                     <a href="${
                       item.url
@@ -402,14 +429,14 @@
                         <i class="fas fa-external-link-alt"></i>
                     </a>
                 </div>
-            `
+            `,
           )
           .join("");
       }
 
       function addToHistory(title, thumbnail, url, format) {
         const history = JSON.parse(
-          localStorage.getItem("downloadHistory") || "[]"
+          localStorage.getItem("downloadHistory") || "[]",
         );
         const newItem = {
           title,
@@ -475,7 +502,7 @@
           document.getElementById("videoTitle").textContent = data.title;
           document.getElementById("videoAuthor").textContent = data.author;
           document.getElementById("videoDuration").textContent = formatDuration(
-            data.length
+            data.length,
           );
 
           document.getElementById("videoPreview").classList.remove("hidden");
@@ -498,7 +525,7 @@
       async function startDownload() {
         const url = document.getElementById("videoUrl").value;
         const format = document.querySelector(
-          'input[name="format"]:checked'
+          'input[name="format"]:checked',
         ).value;
         const btn = document.getElementById("downloadBtn");
         const loading = document.getElementById("loadingState");
@@ -611,6 +638,14 @@
           addToHistory(title, thumbnail, url, format);
 
           showMessage("Download concluído com sucesso!", "success");
+
+          // Notificação nativa no Electron
+          if (isElectron()) {
+            window.electronAPI.notify(
+              "Download Concluído ✅",
+              `${title || "Vídeo"} foi baixado com sucesso!`,
+            );
+          }
         } catch (error) {
           showMessage("Erro ao baixar: " + error.message, "error");
           evtSource.close();
@@ -630,7 +665,7 @@
           "bg-red-100",
           "text-red-700",
           "bg-green-100",
-          "text-green-700"
+          "text-green-700",
         );
 
         if (type === "error") {
@@ -639,6 +674,33 @@
           msg.classList.add("bg-green-100", "text-green-700");
         }
       }
+
+      // ─── Electron Integration ──────────────────────────
+      function isElectron() {
+        return !!(window.electronAPI && window.electronAPI.isElectron);
+      }
+
+      function openDownloadsFolder() {
+        if (isElectron()) {
+          window.electronAPI.openDownloadsFolder();
+        }
+      }
+
+      // Inicialização: detecta Electron e ajusta a UI
+      (function initElectron() {
+        if (isElectron()) {
+          // Mostra controles exclusivos do Electron
+          const ctrl = document.getElementById("electronControls");
+          if (ctrl) ctrl.classList.remove("hidden");
+
+          // Adiciona padding para barra de título no macOS
+          if (window.electronAPI.platform === "darwin") {
+            document.body.style.paddingTop = "28px";
+          }
+
+          console.log("[Electron] Modo desktop ativo");
+        }
+      })();
     </script>
   </body>
 </html>

@@ -1,18 +1,24 @@
-// Preload script para Electron
-// Expõe APIs seguras para o renderer process se necessário
-
 const { contextBridge, ipcRenderer } = require('electron');
 
-// Expõe funções seguras para o frontend (se necessário no futuro)
 contextBridge.exposeInMainWorld('electronAPI', {
-  // Exemplo: abrir pasta de downloads
+  // ─── Informações do App ─────────────────────────────
+  getAppInfo: () => ipcRenderer.invoke('get-app-info'),
+  platform: process.platform,
+
+  // ─── Downloads ──────────────────────────────────────
   openDownloadsFolder: () => ipcRenderer.send('open-downloads'),
-  
-  // Versão do app
-  getVersion: () => process.env.npm_package_version || '1.0.0',
-  
-  // Plataforma
-  platform: process.platform
+  getDownloadsPath: () => ipcRenderer.invoke('get-downloads-path'),
+  showItemInFolder: (filepath) => ipcRenderer.send('show-item-in-folder', filepath),
+  showSaveDialog: (options) => ipcRenderer.invoke('show-save-dialog', options),
+
+  // ─── Links Externos ────────────────────────────────
+  openExternal: (url) => ipcRenderer.send('open-external', url),
+
+  // ─── Notificações ──────────────────────────────────
+  notify: (title, body) => ipcRenderer.send('notify', { title, body }),
+
+  // ─── Estado ────────────────────────────────────────
+  isElectron: true
 });
 
-console.log('Preload script carregado - Video Downloader Pro');
+console.log('[Preload] Video Downloader Pro - APIs expostas com sucesso');

@@ -1,16 +1,18 @@
 {
   "name": "video-downloader-pro",
-  "version": "1.0.0",
-  "description": "Baixe vídeos do YouTube e Instagram facilmente",
+  "version": "1.1.0",
+  "description": "Baixe vídeos do YouTube, Instagram e Twitter/X facilmente",
   "main": "main.js",
-  "author": "Seu Nome",
+  "author": "Tiago",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
+    "dev": "NODE_ENV=development electron .",
     "build": "electron-builder",
     "build:mac": "electron-builder --mac",
     "build:win": "electron-builder --win",
-    "build:linux": "electron-builder --linux"
+    "build:linux": "electron-builder --linux",
+    "clean": "rm -rf dist out node_modules/.cache"
   },
   "build": {
     "appId": "com.videodownloader.app",

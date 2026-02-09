@@ -10,13 +10,9 @@ import yt_dlp
 app = Flask(__name__)
 
 # Configuração do diretório de downloads
-if os.environ.get('VERCEL'):
-    import tempfile
-    DOWNLOAD_DIR = tempfile.gettempdir()
-else:
-    DOWNLOAD_DIR = 'downloads'
-    if not os.path.exists(DOWNLOAD_DIR):
-        os.makedirs(DOWNLOAD_DIR)
+DOWNLOAD_DIR = 'downloads'
+if not os.path.exists(DOWNLOAD_DIR):
+    os.makedirs(DOWNLOAD_DIR)
 
 download_progress = {}
 
@@ -60,6 +56,9 @@ def download_file_from_url(url, filepath, download_id=None):
 def is_instagram_url(url):
     return 'instagram.com' in url
 
+def is_twitter_url(url):
+    return 'twitter.com' in url or 'x.com' in url
+
 def get_instagram_info_data(url):
     ydl_opts = {
         'quiet': True,
@@ -70,6 +69,21 @@ def get_instagram_info_data(url):
         return {
             'title': info.get('description', 'Instagram Video')[:50] if info.get('description') else 'Instagram Video',
             'author': info.get('uploader', 'Instagram User'),
+            'length': info.get('duration', 0),
+            'thumbnail': info.get('thumbnail', ''),
+            'views': info.get('view_count', 0)
+        }
+
+def get_twitter_info_data(url):
+    ydl_opts = {
+        'quiet': True,
+        'no_warnings': True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return {
+            'title': info.get('description', 'Twitter Video')[:80] if info.get('description') else 'Twitter Video',
+            'author': info.get('uploader', 'Twitter User'),
             'length': info.get('duration', 0),
             'thumbnail': info.get('thumbnail', ''),
             'views': info.get('view_count', 0)
@@ -92,6 +106,10 @@ def get_info():
         
         if is_instagram_url(url):
             info = get_instagram_info_data(url)
+            return jsonify(info)
+        
+        if is_twitter_url(url):
+            info = get_twitter_info_data(url)
             return jsonify(info)
 
         yt = YouTube(logging=False)
@@ -170,6 +188,20 @@ def download():
                 download_url = info.get('url')
                 ext = info.get('ext', 'mp4')
                 video_title = info.get('description', 'instagram_video')[:50] if info.get('description') else 'instagram_video'
+        elif is_twitter_url(url):
+            if download_id:
+                download_progress[download_id]['message'] = 'Processando Twitter/X...'
+            
+            ydl_opts = {
+                'quiet': True,
+                'no_warnings': True,
+                'format': 'best',
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=False)
+                download_url = info.get('url')
+                ext = info.get('ext', 'mp4')
+                video_title = info.get('description', 'twitter_video')[:80] if info.get('description') else 'twitter_video'
         else:
             yt = YouTube(logging=False)
             yt.extract(url)
@@ -257,6 +289,45 @@ def download():
                 'percent': 0,
                 'message': f'Erro: {str(e)}'
             }
+        return jsonify({'error': str(e)}), 400
+
+
+@app.route('/health')
+def health():
+    return jsonify({'status': 'ok', 'version': '1.1.0'})
+
+@app.route('/list-downloads')
+def list_downloads():
+    try:
+        files = []
+        for f in os.listdir(DOWNLOAD_DIR):
+            filepath = os.path.join(DOWNLOAD_DIR, f)
+            if os.path.isfile(filepath):
+                stat = os.stat(filepath)
+                files.append({
+                    'name': f,
+                    'size': stat.st_size,
+                    'modified': stat.st_mtime,
+                    'path': os.path.abspath(filepath)
+                })
+        files.sort(key=lambda x: x['modified'], reverse=True)
+        return jsonify({'files': files})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/delete-file', methods=['POST'])
+def delete_file():
+    try:
+        data = request.get_json()
+        filename = data.get('filename')
+        if not filename:
+            return jsonify({'error': 'Nome do arquivo não fornecido'}), 400
+        filepath = os.path.join(DOWNLOAD_DIR, filename)
+        if os.path.exists(filepath) and os.path.isfile(filepath):
+            os.remove(filepath)
+            return jsonify({'success': True})
+        return jsonify({'error': 'Arquivo não encontrado'}), 404
+    except Exception as e:
         return jsonify({'error': str(e)}), 400
 
 
