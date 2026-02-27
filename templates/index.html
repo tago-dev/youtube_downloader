@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Video Downloader Pro (YT, Insta & X)</title>
+    <title>Playdown (YT, Insta & X)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
@@ -15,22 +15,26 @@
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js"></script>
     <style>
+      :root {
+        color-scheme: dark;
+      }
       body {
         font-family: "Inter", sans-serif;
-        background-image: url("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop");
-        background-size: cover;
-        background-position: center;
+        background:
+          radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.18), transparent 30%),
+          radial-gradient(circle at 85% 25%, rgba(139, 92, 246, 0.16), transparent 28%),
+          radial-gradient(circle at 50% 100%, rgba(6, 182, 212, 0.08), transparent 35%),
+          linear-gradient(160deg, #020617 0%, #0b1120 50%, #020617 100%);
         background-attachment: fixed;
       }
       .glass {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-      }
-      .dark .glass {
-        background: rgba(17, 24, 39, 0.7);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(2, 6, 23, 0.78);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        box-shadow:
+          0 18px 44px rgba(2, 6, 23, 0.55),
+          inset 0 1px 0 rgba(255, 255, 255, 0.04);
       }
       .loader {
         border-top-color: #3b82f6;
@@ -84,14 +88,14 @@
     </script>
   </head>
   <body
-    class="min-h-screen flex items-center justify-center p-4 transition-colors duration-300"
+    class="min-h-screen flex items-center justify-center p-4 transition-colors duration-300 text-slate-100"
   >
     <!-- Theme Toggle -->
     <button
       id="themeToggle"
-      class="fixed top-4 right-4 p-3 rounded-full glass shadow-lg hover:scale-110 transition-transform duration-200 z-50"
+      class="fixed top-4 right-4 p-3 rounded-full glass shadow-lg hover:scale-110 transition-transform duration-200 z-50 border border-cyan-400/30"
     >
-      <i class="fas fa-moon text-gray-800 dark:text-white text-xl"></i>
+      <i class="fas fa-moon text-cyan-300 text-xl"></i>
     </button>
 
     <div class="container max-w-4xl w-full">
@@ -100,7 +104,7 @@
       >
         <!-- Left Side: Info & Branding -->
         <div
-          class="md:w-2/5 bg-gradient-to-br from-blue-600 to-purple-700 p-8 text-white flex flex-col justify-between relative overflow-hidden"
+          class="md:w-2/5 bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-8 text-white flex flex-col justify-between relative overflow-hidden border-r border-white/10"
         >
           <div class="absolute top-0 left-0 w-full h-full opacity-20">
             <i
@@ -122,29 +126,29 @@
                 <i class="fas fa-cloud-download-alt text-2xl"></i>
               </div>
               <h1 class="text-2xl font-bold tracking-tight">
-                Video Downloader
+                Playdown
               </h1>
             </div>
-            <p class="text-blue-100 mb-8">
+            <p class="text-slate-300 mb-8">
               Baixe vídeos do YouTube, Instagram e Twitter/X em alta qualidade
               com apenas um clique. Simples, rápido e gratuito.
             </p>
           </div>
 
           <div class="relative z-10 space-y-4">
-            <div class="flex items-center gap-3 text-sm text-blue-100">
+            <div class="flex items-center gap-3 text-sm text-slate-300">
               <i class="fas fa-check-circle text-green-400"></i>
               <span>Suporte a 4K e HD</span>
             </div>
-            <div class="flex items-center gap-3 text-sm text-blue-100">
+            <div class="flex items-center gap-3 text-sm text-slate-300">
               <i class="fab fa-x-twitter text-white"></i>
               <span>Suporte ao Twitter/X</span>
             </div>
-            <div class="flex items-center gap-3 text-sm text-blue-100">
+            <div class="flex items-center gap-3 text-sm text-slate-300">
               <i class="fas fa-music text-pink-400"></i>
               <span>Conversão para MP3</span>
             </div>
-            <div class="flex items-center gap-3 text-sm text-blue-100">
+            <div class="flex items-center gap-3 text-sm text-slate-300">
               <i class="fas fa-bolt text-yellow-400"></i>
               <span>Downloads Ilimitados</span>
             </div>
@@ -153,13 +157,13 @@
 
         <!-- Right Side: Form & Interaction -->
         <div
-          class="md:w-3/5 p-8 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md"
+          class="md:w-3/5 p-8 bg-slate-950/70 backdrop-blur-md"
         >
           <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+            <h2 class="text-2xl font-bold text-slate-100 mb-2">
               Comece a Baixar
             </h2>
-            <p class="text-gray-500 dark:text-gray-400 text-sm">
+            <p class="text-slate-400 text-sm">
               Cole o link do vídeo abaixo
             </p>
           </div>
@@ -171,19 +175,19 @@
                 class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"
               >
                 <i
-                  class="fas fa-link text-gray-400 group-focus-within:text-blue-500 transition-colors"
+                  class="fas fa-link text-slate-500 group-focus-within:text-cyan-400 transition-colors"
                 ></i>
               </div>
               <input
                 type="text"
                 id="videoUrl"
-                class="w-full pl-11 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-gray-800 dark:text-white placeholder-gray-400"
+                class="w-full pl-11 pr-4 py-4 bg-slate-900/80 border border-slate-700 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-transparent outline-none transition-all text-slate-100 placeholder-slate-500"
                 placeholder="Cole o link do YouTube, Instagram ou Twitter/X..."
                 oninput="checkUrl()"
               />
               <button
                 onclick="pasteUrl()"
-                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-500 transition-colors"
+                class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-500 hover:text-cyan-400 transition-colors"
                 title="Colar"
               >
                 <i class="fas fa-paste"></i>
@@ -193,7 +197,7 @@
             <!-- Video Preview Card (Hidden by default) -->
             <div
               id="videoPreview"
-              class="hidden fade-in bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700"
+              class="hidden fade-in bg-slate-900/85 rounded-xl p-4 border border-slate-700"
             >
               <div class="flex gap-4">
                 <img
@@ -205,16 +209,16 @@
                 <div class="flex-1 min-w-0">
                   <h3
                     id="videoTitle"
-                    class="text-sm font-semibold text-gray-800 dark:text-white line-clamp-2 mb-1"
+                    class="text-sm font-semibold text-slate-100 line-clamp-2 mb-1"
                   ></h3>
                   <p
                     id="videoAuthor"
-                    class="text-xs text-gray-500 dark:text-gray-400 mb-2"
+                    class="text-xs text-slate-400 mb-2"
                   ></p>
-                  <div class="flex items-center gap-2 text-xs text-gray-500">
+                  <div class="flex items-center gap-2 text-xs text-slate-400">
                     <span
                       id="videoDuration"
-                      class="bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded"
+                      class="bg-slate-800 px-2 py-0.5 rounded"
                     ></span>
                   </div>
                 </div>
@@ -232,13 +236,13 @@
                   class="peer sr-only"
                 />
                 <div
-                  class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-blue-500 peer-checked:bg-blue-50 dark:peer-checked:bg-blue-900/20 transition-all text-center hover:bg-gray-50 dark:hover:bg-gray-800"
+                  class="p-4 rounded-xl border-2 border-slate-700 peer-checked:border-cyan-500 peer-checked:bg-cyan-900/20 transition-all text-center hover:bg-slate-800"
                 >
                   <i
-                    class="fas fa-video text-2xl mb-2 text-gray-400 peer-checked:text-blue-500"
+                    class="fas fa-video text-2xl mb-2 text-slate-500 peer-checked:text-cyan-400"
                   ></i>
                   <div
-                    class="text-sm font-medium text-gray-600 dark:text-gray-300 peer-checked:text-blue-600 dark:peer-checked:text-blue-400"
+                    class="text-sm font-medium text-slate-300 peer-checked:text-cyan-300"
                   >
                     Vídeo MP4
                   </div>
@@ -252,13 +256,13 @@
                   class="peer sr-only"
                 />
                 <div
-                  class="p-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 peer-checked:border-purple-500 peer-checked:bg-purple-50 dark:peer-checked:bg-purple-900/20 transition-all text-center hover:bg-gray-50 dark:hover:bg-gray-800"
+                  class="p-4 rounded-xl border-2 border-slate-700 peer-checked:border-fuchsia-500 peer-checked:bg-fuchsia-900/20 transition-all text-center hover:bg-slate-800"
                 >
                   <i
-                    class="fas fa-music text-2xl mb-2 text-gray-400 peer-checked:text-purple-500"
+                    class="fas fa-music text-2xl mb-2 text-slate-500 peer-checked:text-fuchsia-400"
                   ></i>
                   <div
-                    class="text-sm font-medium text-gray-600 dark:text-gray-300 peer-checked:text-purple-600 dark:peer-checked:text-purple-400"
+                    class="text-sm font-medium text-slate-300 peer-checked:text-fuchsia-300"
                   >
                     Áudio MP3
                   </div>
@@ -266,23 +270,33 @@
               </label>
             </div>
 
-            <!-- Download Button -->
-            <button
-              onclick="startDownload()"
-              id="downloadBtn"
-              class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <span>Baixar Agora</span>
-              <i class="fas fa-arrow-right"></i>
-            </button>
+            <!-- Download Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                onclick="startDownload()"
+                id="downloadBtn"
+                class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <span>Baixar Direto</span>
+                <i class="fas fa-arrow-down"></i>
+              </button>
+              <button
+                onclick="enqueueCurrentUrl()"
+                id="enqueueBtn"
+                class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <span>Adicionar à Fila</span>
+                <i class="fas fa-list-check"></i>
+              </button>
+            </div>
 
             <!-- Loading State -->
             <div
               id="loadingState"
-              class="hidden w-full py-4 flex flex-col items-center justify-center gap-2 text-blue-600"
+              class="hidden w-full py-4 flex flex-col items-center justify-center gap-2 text-cyan-400"
             >
               <div
-                class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"
+                class="loader ease-linear rounded-full border-4 border-t-4 border-slate-700 h-8 w-8"
               ></div>
               <span class="text-sm font-medium">Processando...</span>
             </div>
@@ -290,13 +304,13 @@
             <!-- Progress Container -->
             <div id="progressContainer" class="hidden mt-4 space-y-2">
               <div
-                class="flex justify-between text-sm text-gray-600 dark:text-gray-400"
+                class="flex justify-between text-sm text-slate-400"
               >
                 <span id="progressStatus">Iniciando...</span>
                 <span id="progressPercent">0%</span>
               </div>
               <div
-                class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden"
+                class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden"
               >
                 <div
                   id="progressBar"
@@ -306,7 +320,7 @@
               </div>
               <div
                 id="progressLog"
-                class="text-xs text-gray-500 font-mono h-20 overflow-y-auto bg-gray-50 dark:bg-gray-800 p-2 rounded border border-gray-200 dark:border-gray-700"
+                class="text-xs text-slate-400 font-mono h-20 overflow-y-auto bg-slate-900 p-2 rounded border border-slate-700"
               >
                 <!-- Logs go here -->
               </div>
@@ -317,13 +331,34 @@
               id="messageArea"
               class="hidden p-4 rounded-xl text-sm font-medium text-center"
             ></div>
+
+            <!-- Queue Manager -->
+            <div
+              id="queueSection"
+              class="mt-6 bg-slate-900/80 rounded-xl border border-slate-700 p-4"
+            >
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="text-sm font-semibold text-slate-200">
+                  Fila de Downloads
+                </h3>
+                <span
+                  id="queueStats"
+                  class="text-xs text-slate-400"
+                ></span>
+              </div>
+              <div id="queueList" class="space-y-2">
+                <div class="text-xs text-slate-400">
+                  Carregando fila...
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Download History -->
           <div id="historySection" class="mt-8 hidden fade-in">
             <div class="flex items-center justify-between mb-4">
               <h3
-                class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                class="text-sm font-semibold text-slate-400 uppercase tracking-wider"
               >
                 Downloads Recentes
               </h3>
@@ -341,19 +376,19 @@
         </div>
       </div>
 
-      <div class="text-center mt-8 text-white/60 text-sm space-y-3">
+      <div class="text-center mt-8 text-slate-400 text-sm space-y-3">
         <!-- Botão abrir pasta de downloads (aparece no Electron) -->
         <div id="electronControls" class="hidden">
           <button
             onclick="openDownloadsFolder()"
-            class="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors text-white/80 hover:text-white text-sm backdrop-blur-sm"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 rounded-lg transition-colors text-slate-300 hover:text-slate-100 text-sm backdrop-blur-sm border border-slate-700"
           >
             <i class="fas fa-folder-open"></i>
             <span>Abrir Pasta de Downloads</span>
           </button>
         </div>
         <p>
-          &copy; 2025 Video Downloader Pro. Feito com
+          &copy; 2026 Playdown. Feito com
           <i class="fas fa-heart text-red-400 mx-1"></i> por Tiago.
         </p>
       </div>
@@ -365,18 +400,16 @@
       const html = document.documentElement;
       const icon = themeToggle.querySelector("i");
 
-      // Load theme from local storage
-      if (
-        localStorage.getItem("theme") === "dark" ||
-        (!("theme" in localStorage) &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        html.classList.add("dark");
-        icon.classList.remove("fa-moon");
-        icon.classList.add("fa-sun");
-        icon.classList.replace("text-gray-800", "text-yellow-400");
-      } else {
+      // Load theme from local storage (dark por padrão)
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme === "light") {
         html.classList.remove("dark");
+        icon.classList.remove("fa-sun", "text-yellow-400");
+        icon.classList.add("fa-moon", "text-cyan-300");
+      } else {
+        html.classList.add("dark");
+        icon.classList.remove("fa-moon", "text-cyan-300");
+        icon.classList.add("fa-sun", "text-yellow-400");
       }
 
       themeToggle.addEventListener("click", () => {
@@ -385,16 +418,209 @@
           localStorage.setItem("theme", "dark");
           icon.classList.remove("fa-moon");
           icon.classList.add("fa-sun");
-          icon.classList.replace("text-gray-800", "text-yellow-400");
+          icon.classList.remove("text-cyan-300");
+          icon.classList.add("text-yellow-400");
         } else {
           localStorage.setItem("theme", "light");
           icon.classList.remove("fa-sun");
           icon.classList.add("fa-moon");
-          icon.classList.replace("text-yellow-400", "text-gray-800");
+          icon.classList.remove("text-yellow-400");
+          icon.classList.add("text-cyan-300");
         }
       });
 
       // History Logic
+      let queueEventSource = null;
+
+      function escapeHtml(str) {
+        return (str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function statusBadge(status) {
+        const map = {
+          queued: "bg-slate-800 text-slate-200",
+          running: "bg-cyan-900/40 text-cyan-300",
+          completed: "bg-emerald-900/40 text-emerald-300",
+          failed: "bg-rose-900/40 text-rose-300",
+          cancelled: "bg-amber-900/40 text-amber-300",
+        };
+        return map[status] || map.queued;
+      }
+
+      function renderQueue(payload) {
+        const queueList = document.getElementById("queueList");
+        const queueStats = document.getElementById("queueStats");
+        const jobs = payload.jobs || [];
+        const stats = payload.stats || {};
+
+        queueStats.textContent =
+          `Total: ${stats.total || 0} • ` +
+          `Fila: ${stats.queued || 0} • ` +
+          `Rodando: ${stats.running || 0} • ` +
+          `OK: ${stats.completed || 0} • ` +
+          `Falha: ${stats.failed || 0}`;
+
+        if (!jobs.length) {
+          queueList.innerHTML = `<div class="text-xs text-slate-400">Nenhum job na fila ainda.</div>`;
+          return;
+        }
+
+        queueList.innerHTML = jobs
+          .map((job) => {
+            const title = escapeHtml(job.filename || job.url || "Sem título");
+            const message = escapeHtml(job.message || "");
+            const queuePos =
+              job.status === "queued" && job.queue_position
+                ? `#${job.queue_position}`
+                : "";
+            const percent = Math.round(job.percent || 0);
+            const controls = [];
+
+            if (job.can_cancel) {
+              controls.push(
+                `<button onclick="cancelQueueJob('${job.id}')" class="text-xs px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600">Cancelar</button>`,
+              );
+            }
+            if (job.can_retry) {
+              controls.push(
+                `<button onclick="retryQueueJob('${job.id}')" class="text-xs px-2 py-1 rounded bg-amber-500 text-white hover:bg-amber-600">Tentar de novo</button>`,
+              );
+            }
+            if (job.status === "queued" && job.queue_position > 1) {
+              controls.push(
+                `<button onclick="moveQueueJob('${job.id}', -1)" class="text-xs px-2 py-1 rounded bg-slate-700 text-slate-200 hover:bg-slate-600">↑</button>`,
+              );
+            }
+            if (job.status === "queued") {
+              controls.push(
+                `<button onclick="moveQueueJob('${job.id}', 1)" class="text-xs px-2 py-1 rounded bg-slate-700 text-slate-200 hover:bg-slate-600">↓</button>`,
+              );
+            }
+            if (job.status === "completed") {
+              controls.push(
+                `<button onclick="downloadQueueJob('${job.id}')" class="text-xs px-2 py-1 rounded bg-emerald-600 text-white hover:bg-emerald-700">Baixar arquivo</button>`,
+              );
+            }
+
+            return `
+              <div class="p-3 rounded-lg border border-slate-700 bg-slate-900/90">
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <div class="text-xs font-medium text-slate-100 truncate">${title}</div>
+                  <div class="flex items-center gap-2">
+                    ${queuePos ? `<span class="text-[10px] text-slate-400">${queuePos}</span>` : ""}
+                    <span class="text-[10px] px-2 py-1 rounded ${statusBadge(job.status)}">${escapeHtml(job.status)}</span>
+                  </div>
+                </div>
+                <div class="w-full bg-slate-800 rounded h-1.5 overflow-hidden">
+                  <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-1.5 rounded" style="width:${percent}%"></div>
+                </div>
+                <div class="flex items-center justify-between mt-2 gap-2">
+                  <div class="text-[11px] text-slate-400 truncate">${message}</div>
+                  <div class="flex items-center gap-1 shrink-0">${controls.join("")}</div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+      }
+
+      async function refreshQueue() {
+        try {
+          const response = await axios.get("/queue/jobs");
+          renderQueue(response.data);
+        } catch (error) {
+          console.error("Erro ao carregar fila:", error);
+        }
+      }
+
+      function connectQueueEvents() {
+        if (queueEventSource) {
+          queueEventSource.close();
+        }
+        queueEventSource = new EventSource("/queue/events");
+        queueEventSource.onmessage = (event) => {
+          try {
+            renderQueue(JSON.parse(event.data));
+          } catch (e) {
+            console.error("Erro no evento da fila:", e);
+          }
+        };
+        queueEventSource.onerror = () => {
+          if (queueEventSource) queueEventSource.close();
+          setTimeout(connectQueueEvents, 1500);
+        };
+      }
+
+      async function enqueueCurrentUrl() {
+        const url = document.getElementById("videoUrl").value;
+        const format = document.querySelector(
+          'input[name="format"]:checked',
+        ).value;
+
+        if (!url) {
+          showMessage("Por favor, insira uma URL válida.", "error");
+          return;
+        }
+
+        try {
+          await axios.post("/queue/enqueue", { url, format });
+          showMessage("URL adicionada à fila com sucesso!", "success");
+          await refreshQueue();
+        } catch (error) {
+          const msg = error?.response?.data?.error || error.message;
+          showMessage("Erro ao enfileirar: " + msg, "error");
+        }
+      }
+
+      async function cancelQueueJob(jobId) {
+        try {
+          await axios.post("/queue/cancel", { job_id: jobId });
+          await refreshQueue();
+        } catch (error) {
+          const msg = error?.response?.data?.error || error.message;
+          showMessage("Erro ao cancelar job: " + msg, "error");
+        }
+      }
+
+      async function retryQueueJob(jobId) {
+        try {
+          await axios.post("/queue/retry", { job_id: jobId });
+          await refreshQueue();
+        } catch (error) {
+          const msg = error?.response?.data?.error || error.message;
+          showMessage("Erro ao reenfileirar job: " + msg, "error");
+        }
+      }
+
+      function downloadQueueJob(jobId) {
+        const a = document.createElement("a");
+        a.href = `/queue/file/${encodeURIComponent(jobId)}`;
+        a.click();
+      }
+
+      async function moveQueueJob(jobId, delta) {
+        try {
+          const response = await axios.get("/queue/jobs");
+          const jobs = response.data.jobs || [];
+          const job = jobs.find((j) => j.id === jobId);
+          if (!job || job.status !== "queued" || !job.queue_position) return;
+          const newPosition = Math.max(0, job.queue_position - 1 + delta);
+          await axios.post("/queue/reorder", {
+            job_id: jobId,
+            position: newPosition,
+          });
+          await refreshQueue();
+        } catch (error) {
+          const msg = error?.response?.data?.error || error.message;
+          showMessage("Erro ao reordenar fila: " + msg, "error");
+        }
+      }
+
       function loadHistory() {
         const history = JSON.parse(
           localStorage.getItem("downloadHistory") || "[]",
@@ -411,21 +637,21 @@
         list.innerHTML = history
           .map(
             (item) => `
-                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-3 p-3 bg-slate-900 rounded-lg border border-slate-700 hover:shadow-md transition-shadow">
                     <img src="${
                       item.thumbnail
                     }" class="w-12 h-12 rounded object-cover">
                     <div class="flex-1 min-w-0">
-                        <h4 class="text-xs font-medium text-gray-800 dark:text-white truncate">${
+                        <h4 class="text-xs font-medium text-slate-100 truncate">${
                           item.title
                         }</h4>
-                        <p class="text-[10px] text-gray-500">${item.date} • ${
+                        <p class="text-[10px] text-slate-400">${item.date} • ${
                           item.format === "audio" ? "MP3" : "MP4"
                         }</p>
                     </div>
                     <a href="${
                       item.url
-                    }" target="_blank" class="text-blue-500 hover:text-blue-600 p-2">
+                    }" target="_blank" class="text-cyan-400 hover:text-cyan-300 p-2">
                         <i class="fas fa-external-link-alt"></i>
                     </a>
                 </div>
@@ -461,6 +687,8 @@
 
       // Load history on start
       loadHistory();
+      refreshQueue();
+      connectQueueEvents();
 
       // Paste URL
       async function pasteUrl() {
@@ -662,16 +890,16 @@
         msg.textContent = text;
         msg.classList.remove(
           "hidden",
-          "bg-red-100",
-          "text-red-700",
-          "bg-green-100",
-          "text-green-700",
+          "bg-rose-900/30",
+          "text-rose-300",
+          "bg-emerald-900/30",
+          "text-emerald-300",
         );
 
         if (type === "error") {
-          msg.classList.add("bg-red-100", "text-red-700");
+          msg.classList.add("bg-rose-900/30", "text-rose-300");
         } else {
-          msg.classList.add("bg-green-100", "text-green-700");
+          msg.classList.add("bg-emerald-900/30", "text-emerald-300");
         }
       }
 

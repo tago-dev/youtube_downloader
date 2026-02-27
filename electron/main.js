@@ -115,7 +115,7 @@ function getSplashHTML() {
 <body>
   <div class="card">
     <div class="icon">⬇️</div>
-    <h1>Video Downloader Pro</h1>
+    <h1>Playdown</h1>
     <p>YouTube • Instagram • Twitter/X</p>
     <div class="loader-track"><div class="loader-bar"></div></div>
     <div class="status">Iniciando servidor...</div>
@@ -134,7 +134,7 @@ function createMainWindow() {
     minWidth: 800,
     minHeight: 600,
     show: false,
-    title: 'Video Downloader Pro',
+    title: 'Playdown',
     icon: iconPath,
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     trafficLightPosition: { x: 16, y: 16 },
@@ -201,11 +201,11 @@ function createTray() {
   }
 
   tray = new Tray(trayIcon);
-  tray.setToolTip('Video Downloader Pro');
+  tray.setToolTip('Playdown');
 
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Abrir Video Downloader',
+      label: 'Abrir Playdown',
       click: () => {
         if (mainWindow) {
           mainWindow.show();
@@ -225,8 +225,8 @@ function createTray() {
       click: () => {
         dialog.showMessageBox({
           type: 'info',
-          title: 'Video Downloader Pro',
-          message: 'Video Downloader Pro v1.1.0',
+          title: 'Playdown',
+          message: `Playdown v${app.getVersion()}`,
           detail: 'Baixe vídeos do YouTube, Instagram e Twitter/X.\nFeito com ❤️ por Tiago.'
         });
       }
@@ -420,7 +420,7 @@ function buildAppMenu() {
     ...(isMac ? [{
       label: app.name,
       submenu: [
-        { role: 'about', label: 'Sobre Video Downloader' },
+        { role: 'about', label: 'Sobre Playdown' },
         { type: 'separator' },
         { role: 'hide', label: 'Ocultar' },
         { role: 'hideOthers', label: 'Ocultar Outros' },
@@ -497,7 +497,7 @@ app.whenReady().then(async () => {
 
     dialog.showErrorBox(
       'Erro ao iniciar',
-      `Não foi possível iniciar o Video Downloader.\n\n` +
+      `Não foi possível iniciar o Playdown.\n\n` +
       `Verifique se o Python 3 está instalado e acessível no PATH.\n\n` +
       `Erro: ${error.message}`
     );
