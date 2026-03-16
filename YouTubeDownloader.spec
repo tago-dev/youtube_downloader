@@ -1,12 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+from PyInstaller.utils.hooks import collect_data_files
+
+customtkinter_datas = collect_data_files("customtkinter")
 
 a = Analysis(
-    ['desktop_app.py'],
+    ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[('templates', 'templates')],
-    hiddenimports=[],
+    datas=customtkinter_datas,
+    hiddenimports=['darkdetect'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -19,9 +22,8 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='YouTubeDownloader',
     debug=False,
     bootloader_ignore_signals=False,
@@ -36,8 +38,18 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
 )
-app = BUNDLE(
+coll = COLLECT(
     exe,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='YouTubeDownloader',
+)
+app = BUNDLE(
+    coll,
     name='YouTubeDownloader.app',
     icon=None,
     bundle_identifier=None,

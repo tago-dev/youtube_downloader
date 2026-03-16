@@ -1,6 +1,7 @@
-Flask==3.0.0
-streamsnapper
+customtkinter>=5.2.2
+pillow>=12.1.1
+platformdirs>=4.9.4
 requests
-yt-dlp>=2024.0.0
-pywebview
+streamsnapper
+yt-dlp>=2025.12.8
 pyinstaller

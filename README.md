@@ -1,56 +1,68 @@
-# 🎥 YouTube Downloader Pro
+# Playdown
 
-Um webapp moderno e elegante para baixar vídeos e áudios do YouTube, construído com **Flask** e **StreamSnapper**.
+Aplicativo desktop nativo em Python para baixar mídia do YouTube, Instagram e Twitter/X, com interface em `customtkinter` e fila persistente.
 
-## ✨ Características
+## O que mudou
 
-- 🎨 **Design Glassmorphism**: Interface moderna com efeitos de vidro, gradientes e animações suaves (Tailwind CSS).
-- 🚀 **Alta Performance**: Utiliza a biblioteca `streamsnapper` para extração rápida e confiável.
-- 📊 **Progresso em Tempo Real**: Barra de progresso e logs detalhados via Server-Sent Events (SSE).
-- 📱 **Responsivo**: Funciona perfeitamente em desktop e mobile.
-- 🎯 **Formatos**: Suporte para Vídeo (MP4) e Áudio (MP3/M4A/WebM).
-- 🖼️ **Preview**: Visualização automática da thumbnail e metadados do vídeo.
-- 📝 **Histórico**: Salva seus downloads recentes localmente.
+- Não depende mais de Flask, navegador, `pywebview` ou Electron para a interface principal.
+- A lógica de download foi separada da interface.
+- A fila de downloads continua persistida em disco e agora alimenta a UI diretamente.
+- O executável passa a empacotar a GUI nativa com PyInstaller.
 
-## 🛠️ Tecnologias
+## Recursos
 
-- **Backend**: Python 3.10+, Flask 3.0.0
-- **Core**: [StreamSnapper](https://github.com/henrique-coder/streamsnapper) (Extração de mídia)
-- **Frontend**: HTML5, Tailwind CSS, JavaScript (Vanilla + Axios)
-- **Gerenciador de Pacotes**: uv (recomendado) ou pip
+- Preview de título, autor, duração, views e thumbnail
+- Seleção de formato `video` ou `audio`
+- Fila de downloads com progresso em tempo real
+- Cancelamento e nova tentativa de jobs com falha
+- Abertura rápida da pasta de downloads
+- Persistência automática da fila entre reinicializações
 
-## 🚀 Como Usar
+## Estrutura principal
 
-### Instalação
+- `app.py`: entrada principal do app
+- `native_app.py`: entrada alternativa para a GUI nativa
+- `playdown/core.py`: extração de metadados e resolução/download dos arquivos
+- `playdown/queue_manager.py`: fila persistente e worker em background
+- `playdown/gui.py`: interface desktop em `customtkinter`
+- `playdown/paths.py`: diretórios de dados e downloads do aplicativo
 
-Recomendamos o uso do **uv** para gerenciamento de dependências.
+## Instalação
 
-1. Clone o repositório:
-
-```bash
-git clone https://github.com/tago-dev/youtube_downloader.git
-cd youtube_downloader
-```
-
-2. Instale as dependências e rode o projeto:
+### Com `uv` (recomendado)
 
 ```bash
-# Usando uv (Recomendado)
 uv sync
-.venv/bin/python -m flask run --debug
-
-# OU usando pip tradicional
-pip install flask requests git+https://github.com/henrique-coder/streamsnapper.git@main
-python -m flask run
+uv run python app.py
 ```
 
-3. Acesse no navegador:
-   `http://127.0.0.1:5000`
+### Com `pip`
 
-## 🏆 Menção Honrosa
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python app.py
+```
 
-Um agradecimento especial ao meu grande amigo **Henrique "FHDP" Morreira**, criador da biblioteca `streamsnapper` e lenda viva do desenvolvimento, que tornou este projeto possível com sua ferramenta incrível e suporte técnico de elite! 🔥
+## Gerando o executável
 
----
+```bash
+uv run pyinstaller YouTubeDownloader.spec
+```
 
-Desenvolvido com ❤️ por Tiago
+No macOS, o app será gerado em `dist/YouTubeDownloader.app`.
+
+## Observações
+
+- Os downloads são salvos em uma subpasta `Playdown` dentro da pasta padrão de downloads do sistema.
+- O estado da fila é salvo no diretório de dados do usuário usando `platformdirs`.
+- O modo `audio` baixa o melhor stream de áudio disponível. O arquivo final pode ser `mp3`, `m4a` ou `webm`, dependendo da origem.
+
+## Desenvolvimento
+
+Para validar rapidamente a sintaxe dos arquivos Python:
+
+```bash
+python3 -m compileall app.py native_app.py desktop_app.py playdown
+```
